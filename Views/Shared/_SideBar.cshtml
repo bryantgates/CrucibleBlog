@@ -1,0 +1,76 @@
+﻿@using CrucibleBlog.Enums;
+@using CrucibleBlog.Services.Interfaces;
+
+@inject IImageService _ImageService
+@inject IBlogService _BlogService
+
+
+
+
+<!-- Start Sidebar Area  -->
+<div class="sidebar-inner">
+
+	<!-- Start Single Widget  -->
+	<div class="axil-single-widget widget widget_categories mb--30">
+		<ul>
+			@foreach (Category category in (await _BlogService.GetCategoriesAsync()).Take(4))
+			{
+				<li class="cat-item">
+					<a href="#" class="inner">
+						<div class="thumbnail">
+							<img src="@_ImageService.ConvertByteArrayToFile(category.ImageData,category.ImageType,(int)DefaultImage.CategoryImage)" alt="">
+						</div>
+						<div class="content">
+							<h5 class="title">@category.Name</h5>
+						</div>
+					</a>
+				</li>
+			}
+	</div>
+	<!-- End Single Widget  -->
+	<!-- Start Single Widget  -->
+	<div class="axil-single-widget widget widget_search mb--30">
+		<h5 class="widget-title">Search</h5>
+		<form action="#">
+			<div class="axil-search form-group">
+				<button type="submit" class="search-button"><i class="fal fa-search"></i></button>
+				<input type="text" class="form-control" placeholder="Search">
+			</div>
+		</form>
+	</div>
+	<!-- End Single Widget  -->
+	<!-- Start Single Widget  -->
+	<div class="axil-single-widget widget-style-2 widget_postlist mb--30">
+		<h5 class="widget-title">Popular Posts</h5>
+		<!-- Start Post List -->
+		<div class="post-medium-block">
+
+			@foreach (BlogPost blogPost in (await _BlogService.GetPopularBlogPostsAsync(3)))
+			{
+				<!-- Start Single Post -->
+				<div class="content-block post-medium mb--20">
+					<div class="post-thumbnail">
+						<a asp-action="Details" asp-controller="BlogPosts" asp-route-slug="@blogPost.Slug">
+							<img src="@_ImageService.ConvertByteArrayToFile(blogPost.ImageData,blogPost.ImageType,(int)DefaultImage.BlogPostImage)">
+						</a>
+
+					</div>
+					<div class="post-content">
+						<h6 class="title">
+							<a asp-action="Details" asp-controller="BlogPosts" asp-route-slug="@blogPost.Slug">
+								@blogPost.Title
+							</a>
+						</h6>
+						<div class="post-meta">
+							<ul class="post-meta-list">
+								<li>@blogPost.CreatedDate.ToString("MM dd, yyyy")</li>
+							</ul>
+						</div>
+					</div>
+					
+				</div>
+			}
+
+		</div>
+	</div>
+</div>

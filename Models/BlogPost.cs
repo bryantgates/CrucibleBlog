@@ -16,9 +16,11 @@ namespace CrucibleBlog.Models
 		[DataType(DataType.DateTime)]
 		public DateTime CreatedDate { get; set; }
 		[DataType(DataType.DateTime)]
-		public DateTime UpdatedDate { get; set;}
+		public DateTime? UpdatedDate { get; set;}
+		[Required]
 		public string? Slug { get; set; }
 		public bool IsPublished { get; set; }
+		public bool IsDeleted { get; set; }
 		[Required]
 		public int CategoryId { get; set; }
 

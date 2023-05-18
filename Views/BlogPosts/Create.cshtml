@@ -1,77 +1,102 @@
 ﻿@model CrucibleBlog.Models.BlogPost
 
+@using CrucibleBlog.Enums;
+@using CrucibleBlog.Services.Interfaces;
+
+@inject IImageService _ImageService
+@inject IBlogService _BlogService
+
 @{
-    ViewData["Title"] = "Create";
+	ViewData["Title"] = "Create";
 }
-
-<h1>Create</h1>
-
-<h4>BlogPost</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Abstract" class="control-label"></label>
-                <input asp-for="Abstract" class="form-control" />
-                <span asp-validation-for="Abstract" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
-                <span asp-validation-for="Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedDate" class="control-label"></label>
-                <input asp-for="UpdatedDate" class="form-control" />
-                <span asp-validation-for="UpdatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsPublished" /> @Html.DisplayNameFor(model => model.IsPublished)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageData" class="control-label"></label>
-                <input asp-for="ImageData" class="form-control" />
-                <span asp-validation-for="ImageData" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageType" class="control-label"></label>
-                <input asp-for="ImageType" class="form-control" />
-                <span asp-validation-for="ImageType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="post-single-wrapper axil-section-gap bg-color-white">
+	<div class="container"> <h1>Create</h1> <h4>BlogPost</h4> </div> <hr /> <main class="container mt-5">
+		<form asp-action="Create" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div> <div class="row">
+				<div class="col-12 col-lg-4"> <div class="form-group"> <label asp-for="ImageFile" class="control-label">Blog Post Image</label> <img class="img-fluid border rounded-3 mb-2" style="max-height: 350px;" src="@_ImageService.ConvertByteArrayToFile(Model.ImageData!,Model.ImageType!,(int)DefaultImage.BlogPostImage)" id="blogImage"> <input asp-for="ImageFile" type="file" class="form-control mt-3 pt-2" accept=".png,.jpg,.jpeg,.gif" onchange="document.getElementById('blogImage').src = window.URL.createObjectURL(this.files[0])" /> </div> <div class="form-group"> <label asp-for="Title" class="control-label"></label> <input asp-for="Title" class="form-control" /> <span asp-validation-for="Title" class="text-danger"></span> </div> <div class="form-group"> <label asp-for="Abstract" class="control-label"></label> <textarea asp-for="Abstract" class="form-control" rows="1"></textarea> <span asp-validation-for="Abstract" class="text-danger"></span> </div> <div class="form-group"> <label asp-for="CategoryId" class="control-label">Category</label> <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select> </div> </div> <div class="col-12 col-lg-8">
+					<div class="form-group"> <label asp-for="Content" class="control-label"></label> <textarea asp-for="Content" class="editor form-control"></textarea> <span asp-validation-for="Content" class="text-danger"></span> </div> <div class="form-group" id="tagContainer">
+						<label asp-for="Tags"></label> <input class="form-control" type="text" id="tagInput" name="StringTags" autocomplete="off" /> <div class="tagcloud axil-single-widget mt-2" style="display:none">
+							@foreach (Tag tag in await _BlogService.GetTagsAsync())
+							{
+								<a onclick="addTag(this)">@tag.Name</a>
+							}
+						</div>
+					</div>
+				</div>
+			</div> <div class="form-group d-flex justify-content-end"> <label class="form-check-label me-4 mt-2" asp-for="IsPublished">Publish?</label> <input class="largerCheckbox me-8" type="checkbox" asp-for="IsPublished" /> <span asp-validation-for="IsPublished" class="text-danger"></span> </div> <div class="form-group d-flex justify-content-end"> <input type="submit" value="Create" class="btn btn-primary" /> </div>
+		</form> <div class="form-group mt-5 start-0"> <a asp-action="AdminPage">Admin Page</a> </div>
+	</main>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+<div> <a asp-action="Index">Back to List</a></div>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	}
+
+<script>
+	$(document).ready(function () {
+		document.getElementById('tagInput').addEventListener('focus', () => {
+
+		})
+
+		$('#tagInput').focus(function () {
+			$('.tagcloud').show(300);
+		});
+
+		$('form *:not("#tagInput")').focus(function () {
+			if ($('.tagcloud').is(':visible')) {
+				$('.tagcloud').hide(300);
+			}
+		})
+
+		$('#tagInput').keyup(function () {
+
+			$('.disabledTag').each(function () {
+				$(this).removeClass('disabledTag')
+			})
+
+			//get the text they're searching with
+			let inputText = $('#tagInput').val();
+			let inputTags = inputText.split(',');
+			let searchString = inputTags.pop().trim();
+
+			//hide all the tags that dont contain that text
+			$('.tagcloud > a:contains(' + searchString + ')').show();
+			$('.tagcloud > a:not( :contains(' + searchString + ') )').hide();
+
+			inputTags.forEach(tag => {
+				if (tag.trim() == '') return;
+
+				let tagElement = $('.tagcloud > a:contains(' + tag.trim() + ')');
+
+				if (tagElement.text().trim().toLowerCase() == tag.trim().toLowerCase()) {
+					tagElement.addClass('disabledTag');
+				}
+			})
+		});
+
+	});
+	function addTag(tagElement) {
+		let input = document.getElementById('tagInput');
+
+		if (tagElement.classlist.contains('disabledTag')) {
+			input.focus();
+			return;
+		}
+
+		let tagName = tagElement.textContent + ', ';
+
+		let currentTags = input.value.split(',');
+
+		currentTags.pop();
+		currentTags.push(tagName);
+
+		input.value = currentTags.reduce((inputString, currentString) => inputString + ", " + currentString.trim());
+
+		input.focus();
+
+		$('.tagcloud > a').show();
+		tagElement.classList.add('disabledTag');
+	}
+</script>

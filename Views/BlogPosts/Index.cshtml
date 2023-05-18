@@ -1,6 +1,11 @@
 ﻿@using CrucibleBlog.Enums;
 @using CrucibleBlog.Services.Interfaces;
-@model IEnumerable<CrucibleBlog.Models.BlogPost>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+
+@model IPagedList<CrucibleBlog.Models.BlogPost>
+
 @inject IImageService _ImageService
 
 @{
@@ -26,7 +31,7 @@
                     <!-- Start Post List  -->
                     <div class="content-block post-list-view mt--30">
                         <div class="post-thumbnail">
-                            <a href="post-details.html">
+                            <a asp-action="Details" asp-controller="@blogPost.Id">
                                 <img src="@_ImageService.ConvertByteArrayToFile(blogPost.ImageData,blogPost.ImageType,(int)DefaultImage.BlogPostImage))" alt="Post Images">
                             </a>
                             <a class="video-popup icon-color-secondary size-medium position-top-center" href="post-details.html"><span class="play-icon"></span></a>
@@ -42,9 +47,8 @@
                                 </div>
                             </div>
                             <h4 class="title">
-                                <a href="post-details.html">
-                                    The 1 tool that helps remote teams
-                                    collaborate better
+                                <a a asp-action="Details" asp-controller="@blogPost.Id">
+                                    @blogPost.Title
                                 </a>
                             </h4>
                             <div class="post-meta-wrapper">
@@ -58,7 +62,7 @@
                                             </a>
                                         </h6>
                                         <ul class="post-meta-list">
-                                            <li>@blogPost.CreatedDate.ToString("MMM dd, yyyy")</li>
+                                            <li>@blogPost.CreatedDate.ToString("MM dd, yyyy")</li>
                                             @*<li>3 min read</li>*@
                                         </ul>
                                     </div>
@@ -73,6 +77,20 @@
                         </div>
                     </div>
                 }
+
+                <div>
+                    <div>
+                        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                    </div>
+
+                    @Html.PagedListPager(Model, pageNum => Url.Action("Index", new {pageNum }),
+                    new PagedListRenderOptions{
+                        LiElementClasses = new string[] {"my-page-item"},
+                        PageClasses = new string[] {"my-page-link"}
+                    })
+
+                </div>
+
             </div>
         </div>
     </div>

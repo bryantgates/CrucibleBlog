@@ -48,7 +48,7 @@ namespace CrucibleBlog.Data
 			await dbContextSvc.Database.MigrateAsync();
 
 
-
+			await SeedRolesAsync(roleManagerSvc);
 			//Seed Demo User(s)
 			await SeedDemoUsersAsync(userManagerSvc, configurationSvc);
 

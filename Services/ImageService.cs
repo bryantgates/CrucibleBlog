@@ -7,7 +7,7 @@ namespace ContactPro.Services
     {
 
        
-		private readonly string? _defaultUserImage = "/img/DefaultContactImage.png";
+		private readonly string? _defaultUserImage = "";
 		private readonly string? _defaultBlogImage = "/img/DefaultContactImage.png";
 		private readonly string? _defaultCategoryImage = "/img/DefaultContactImage.png";
 		//Set up default blog and default Category and default 
