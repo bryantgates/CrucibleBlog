@@ -144,7 +144,7 @@ namespace CrucibleBlog.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Abstract,Content,CreatedDate,IsPublished,CategoryId,ImageFile,ImageData,ImageType")] BlogPost blogPost, string? stringTags)
+		public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Abstract,Content,IsPublished,CategoryId,ImageFile,ImageData,ImageType")] BlogPost blogPost, string? stringTags)
 		{
 			if (id != blogPost.Id)
 			{
@@ -175,9 +175,9 @@ namespace CrucibleBlog.Controllers
 					}
 
 					blogPost.UpdatedDate = DateTime.UtcNow;
-                    blogPost.CreatedDate = DateTime.SpecifyKind(blogPost.CreatedDate, DateTimeKind.Utc);
+                    /*blogPost.CreatedDate = blogPost.CreatedDate.ToUniversalTime();*/
 
-                    _context.Update(blogPost);
+					_context.Update(blogPost);
                     await _context.SaveChangesAsync();
 
                     await _blogService.RemoveAllBlogPostTagsAsync(blogPost.Id);

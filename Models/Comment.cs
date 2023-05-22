@@ -10,13 +10,13 @@ namespace CrucibleBlog.Models
 		[StringLength(5000, ErrorMessage = "The {0} must be at least {2} and max {1} characters long.", MinimumLength = 2)]
 		public string? Body { get; set; }
 		[DataType(DataType.DateTime)]
-		public DateTime? CreatedDate { get; set; }
+		[Required]
+		public DateTime CreatedDate { get; set; }
 		[DataType(DataType.DateTime)]
 		public DateTime? UpdatedDate { get; set;}
 		[StringLength(200, ErrorMessage = "The {0} must be at least {2} and max {1} characters long.", MinimumLength = 2)]
 		public string? UpdatedReason { get; set; }
 		public int BlogPostId { get; set; }
-		[Required]
 		public string? AuthorId { get; set; }
 
 		//Navigation Properties

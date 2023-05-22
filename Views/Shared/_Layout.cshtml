@@ -35,7 +35,7 @@
 </head>
 <body>
 
-	<partial name="_LoginPartial">
+	@*<partial name="_LoginPartial">*@
 		<header>
 			<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
 				<div class="container-fluid">
@@ -60,7 +60,7 @@
 					<img src="@_ImageService.ConvertByteArrayToFile(blogUser?.ImageData!,blogUser?.ImageType,(int)(DefaultImage.BlogUserImage))" alt="">
 					<span class="status online"></span>
 					</span>
-					<span>Add User name here</span>
+							<span>Account Management</span>
 					</a>
 					@if (User.Identity!.IsAuthenticated)
 					{
@@ -79,7 +79,7 @@
 				</div>
 			</nav>
 		</header>
-	</partial>
+	@*</partial>*@
 	<div class="content" id="mainHero">
 		<section class="h-100">
 			@RenderBody()
@@ -90,7 +90,7 @@
 		<div class="mouse-cursor cursor-outer"></div>
 		<div class="mouse-cursor cursor-inner"></div>
 
-		<div id="my_switcher" class="my_switcher">
+		@*<div id="my_switcher" class="my_switcher">
 			<ul>
 				<li>
 					<a href="javascript: void(0);" data-theme="light" class="setColor light">
@@ -103,7 +103,7 @@
 					</a>
 				</li>
 			</ul>
-		</div>
+		</div>*@
 	</div>
 
 	<!-- JS
@@ -406,7 +406,7 @@
 	</div>
 	<!-- End Mobile Menu Area  -->
 	@RenderBody()
-
+	*@
 
 
 
@@ -498,6 +498,7 @@
 	<!-- Start Back To Top  -->
 	<a id="backto-top"></a>
 	<!-- End Back To Top  -->
+	@*
 	<!-- JS
 	============================================ -->
 	<!-- Modernizer JS -->

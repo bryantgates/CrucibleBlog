@@ -62,7 +62,7 @@ namespace CrucibleBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Body,BlogPostId")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,Body,BlogPostId,BlogUserId,AuthorId")] Comment comment)
         {
             ModelState.Remove("BlogUserId");
 
@@ -103,7 +103,7 @@ namespace CrucibleBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Body,Created,Updated,UpdatedReason,BlogPostId,AuthorId")] Comment comment)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Body,CreatedDate,UpdatedDate,UpdatedReason,BlogPostId,AuthorId")] Comment comment)
         {
             if (id != comment.Id)
             {
