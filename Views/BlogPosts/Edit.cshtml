@@ -7,7 +7,7 @@
 @inject IBlogService _BlogService
 
 @{
-    ViewData["Title"] = "Edit";
+	ViewData["Title"] = "Edit";
 }
 
 <h1>Edit</h1>
@@ -16,7 +16,7 @@
 <hr />
 <div class="post-single-wrapper axil-section-gap bg-color-white">
 	<div class="container"> <h1>Edit</h1> <h4>BlogPost</h4> </div> <hr /> <main class="container mt-5">
-		
+
 		<form asp-action="Edit" enctype="multipart/form-data">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div> <div class="row">
 				<div class="col-12 col-lg-4"> <div class="form-group"> <label asp-for="ImageFile" class="control-label">Blog Post Image</label> <img class="img-fluid border rounded-3 mb-2" style="max-height: 350px;" src="@_ImageService.ConvertByteArrayToFile(Model.ImageData!,Model.ImageType!,(int)DefaultImage.BlogPostImage)" id="blogImage"> <input asp-for="ImageFile" type="file" class="form-control mt-3 pt-2" accept=".png,.jpg,.jpeg,.gif" onchange="document.getElementById('blogImage').src = window.URL.createObjectURL(this.files[0])" /> </div> <div class="form-group"> <label asp-for="Title" class="control-label"></label> <input asp-for="Title" class="form-control" /> <span asp-validation-for="Title" class="text-danger"></span> </div> <div class="form-group"> <label asp-for="Abstract" class="control-label"></label> <textarea asp-for="Abstract" class="form-control" rows="1"></textarea> <span asp-validation-for="Abstract" class="text-danger"></span> </div> <div class="form-group"> <label asp-for="CategoryId" class="control-label">Category</label> <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select> </div> </div> <div class="col-12 col-lg-8">
@@ -38,72 +38,72 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
-	}
 
-<script>
-	$(document).ready(function () {
-		document.getElementById('tagInput').addEventListener('focus', () => {
 
-		})
+	<script>
+		$(document).ready(function () {
+			document.getElementById('tagInput').addEventListener('focus', () => {
 
-		$('#tagInput').focus(function () {
-			$('.tagcloud').show(300);
-		});
-
-		$('form *:not("#tagInput")').focus(function () {
-			if ($('.tagcloud').is(':visible')) {
-				$('.tagcloud').hide(300);
-			}
-		})
-
-		$('#tagInput').keyup(function () {
-
-			$('.disabledTag').each(function () {
-				$(this).removeClass('disabledTag')
 			})
 
-			//get the text they're searching with
-			let inputText = $('#tagInput').val();
-			let inputTags = inputText.split(',');
-			let searchString = inputTags.pop().trim();
+			$('#tagInput').focus(function () {
+				$('.tagcloud').show(300);
+			});
 
-			//hide all the tags that dont contain that text
-			$('.tagcloud > a:contains(' + searchString + ')').show();
-			$('.tagcloud > a:not( :contains(' + searchString + ') )').hide();
-
-			inputTags.forEach(tag => {
-				if (tag.trim() == '') return;
-
-				let tagElement = $('.tagcloud > a:contains(' + tag.trim() + ')');
-
-				if (tagElement.text().trim().toLowerCase() == tag.trim().toLowerCase()) {
-					tagElement.addClass('disabledTag');
+			$('form *:not("#tagInput")').focus(function () {
+				if ($('.tagcloud').is(':visible')) {
+					$('.tagcloud').hide(300);
 				}
 			})
+
+			$('#tagInput').keyup(function () {
+
+				$('.disabledTag').each(function () {
+					$(this).removeClass('disabledTag')
+				})
+
+				//get the text they're searching with
+				let inputText = $('#tagInput').val();
+				let inputTags = inputText.split(',');
+				let searchString = inputTags.pop().trim();
+
+				//hide all the tags that dont contain that text
+				$('.tagcloud > a:contains(' + searchString + ')').show();
+				$('.tagcloud > a:not( :contains(' + searchString + ') )').hide();
+
+				inputTags.forEach(tag => {
+					if (tag.trim() == '') return;
+
+					let tagElement = $('.tagcloud > a:contains(' + tag.trim() + ')');
+
+					if (tagElement.text().trim().toLowerCase() == tag.trim().toLowerCase()) {
+						tagElement.addClass('disabledTag');
+					}
+				})
+			});
+
 		});
+		function addTag(tagElement) {
+			let input = document.getElementById('tagInput');
 
-	});
-	function addTag(tagElement) {
-		let input = document.getElementById('tagInput');
+			if (tagElement.classlist.contains('disabledTag')) {
+				input.focus();
+				return;
+			}
 
-		if (tagElement.classlist.contains('disabledTag')) {
+			let tagName = tagElement.textContent + ', ';
+
+			let currentTags = input.value.split(',');
+
+			currentTags.pop();
+			currentTags.push(tagName);
+
+			input.value = currentTags.reduce((inputString, currentString) => inputString + ", " + currentString.trim());
+
 			input.focus();
-			return;
+
+			$('.tagcloud > a').show();
+			tagElement.classList.add('disabledTag');
 		}
-
-		let tagName = tagElement.textContent + ', ';
-
-		let currentTags = input.value.split(',');
-
-		currentTags.pop();
-		currentTags.push(tagName);
-
-		input.value = currentTags.reduce((inputString, currentString) => inputString + ", " + currentString.trim());
-
-		input.focus();
-
-		$('.tagcloud > a').show();
-		tagElement.classList.add('disabledTag');
-	}
-</script>
-<link rel="stylesheet" href="~/css/site.css" />
+	</script>
+}

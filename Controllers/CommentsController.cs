@@ -62,9 +62,9 @@ namespace CrucibleBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Body,BlogPostId,BlogUserId,AuthorId")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,Body,BlogPostId,AuthorId")] Comment comment)
         {
-            ModelState.Remove("BlogUserId");
+            ModelState.Remove("AuthorId");
 
             if (ModelState.IsValid)
             {
@@ -73,11 +73,14 @@ namespace CrucibleBlog.Controllers
 
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+
+                BlogPost blogPost = await _context.BlogPost.FirstOrDefaultAsync(b => b.Id == comment.BlogPostId);
+
+				return RedirectToAction("Details", "BlogPosts", new { slug = blogPost!.Slug });
+			}
             ViewData["AuthorId"] = new SelectList(_context.BlogUsers, "Id", "Id", comment.AuthorId);
             ViewData["BlogPostId"] = new SelectList(_context.BlogPost, "Id", "Content", comment.BlogPostId);
-            return View(comment);
+            return View(Index);
         }
 
         // GET: Comments/Edit/5

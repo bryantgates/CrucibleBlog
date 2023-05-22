@@ -11,6 +11,6 @@ namespace CrucibleBlog.Models
 		public string? Name { get; set; }
 
 		//Navigation Properties
-		public virtual Category? BlogPost { get; set; }
+		public virtual ICollection<BlogPost> BlogPosts { get; set; } = new HashSet<BlogPost>();
 	}
 }

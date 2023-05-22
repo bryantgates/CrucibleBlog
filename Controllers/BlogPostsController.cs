@@ -24,26 +24,26 @@ namespace CrucibleBlog.Controllers
 		private readonly UserManager<BlogUser> _userManager;
 		private readonly IImageService _imageService;
 
-        public BlogPostsController(ApplicationDbContext context, UserManager<BlogUser> userManager, IBlogService? blogService, IImageService imageService)
-        {
-            _context = context;
-            _userManager = userManager;
-            _blogService = blogService;
-            _imageService = imageService;
-        }
+		public BlogPostsController(ApplicationDbContext context, UserManager<BlogUser> userManager, IBlogService? blogService, IImageService imageService)
+		{
+			_context = context;
+			_userManager = userManager;
+			_blogService = blogService;
+			_imageService = imageService;
+		}
 
-        // GET: BlogPosts
-        public async Task<IActionResult> Index(int? pageNum)
-        {
-            int pageSize = 4;
-            int page = pageNum ?? 1;
+		// GET: BlogPosts
+		public async Task<IActionResult> Index(int? pageNum)
+		{
+			int pageSize = 4;
+			int page = pageNum ?? 1;
 
-            IPagedList<BlogPost> blogPosts = (await _context.BlogPost.Include(blogPosts => blogPosts.Category).ToPagedListAsync(pageNum, pageSize));
-            return View(blogPosts);
-        }
+			IPagedList<BlogPost> blogPosts = (await _context.BlogPost.Include(blogPosts => blogPosts.Category).ToPagedListAsync(pageNum, pageSize));
+			return View(blogPosts);
+		}
 
-        // GET: BlogPosts/Details/5
-        [AllowAnonymous]
+		// GET: BlogPosts/Details/5
+		[AllowAnonymous]
 		public async Task<IActionResult> Details(string? slug)
 		{
 			if (string.IsNullOrEmpty(slug))
@@ -88,14 +88,6 @@ namespace CrucibleBlog.Controllers
 			{
 				blogPost.CreatedDate = DateTime.UtcNow;
 
-				blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
-
-				_context.Add(blogPost);
-				await _context.SaveChangesAsync();
-				return RedirectToAction(nameof(Index));
-
-			}
-
 				if (!await _blogService.ValidSlugAsync(blogPost.Title, blogPost.Id))
 				{
 					ModelState.AddModelError("Title", "A similar Title/Slug is already in use.");
@@ -103,15 +95,20 @@ namespace CrucibleBlog.Controllers
 					ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
 					return View(blogPost);
 				}
+				blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
 
-			blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
+				_context.Add(blogPost);
+				await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrEmpty(stringTags))
-            {
-                await _blogService.AddTagsToBlogPostAsync(stringTags, blogPost.Id);
-            }
+				if (!string.IsNullOrEmpty(stringTags))
+				{
+					await _blogService.AddTagsToBlogPostAsync(stringTags, blogPost.Id);
+				}
+				return RedirectToAction(nameof(Index));
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
+			}
+
+			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
 			return View(blogPost);
 		}
 
@@ -157,36 +154,36 @@ namespace CrucibleBlog.Controllers
 			{
 				try
 				{
-                    if (!await _blogService.ValidSlugAsync(blogPost.Title, blogPost.Id))
-                    {
-                        ModelState.AddModelError("Title", "A similar Title/Slug is already in use.");
+					if (!await _blogService.ValidSlugAsync(blogPost.Title, blogPost.Id))
+					{
+						ModelState.AddModelError("Title", "A similar Title/Slug is already in use.");
 
 						ViewData["Tags"] = stringTags != null && stringTags.Trim().EndsWith(",") ? stringTags : stringTags;
-                        ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
-                        return View(blogPost);
-                    }
+						ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
+						return View(blogPost);
+					}
 
 					blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
 
-					if(blogPost.ImageFile != null)
+					if (blogPost.ImageFile != null)
 					{
 						blogPost.ImageData = await _imageService.ConvertFileToByteArrayAsync(blogPost.ImageFile);
 						blogPost.ImageType = blogPost.ImageFile.ContentType;
 					}
 
 					blogPost.UpdatedDate = DateTime.UtcNow;
-                    /*blogPost.CreatedDate = blogPost.CreatedDate.ToUniversalTime();*/
+					/*blogPost.CreatedDate = blogPost.CreatedDate.ToUniversalTime();*/
 
 					_context.Update(blogPost);
-                    await _context.SaveChangesAsync();
+					await _context.SaveChangesAsync();
 
-                    await _blogService.RemoveAllBlogPostTagsAsync(blogPost.Id);
+					await _blogService.RemoveAllBlogPostTagsAsync(blogPost.Id);
 
-					if (!string.IsNullOrEmpty(stringTags)) 
+					if (!string.IsNullOrEmpty(stringTags))
 					{
 						await _blogService.AddTagsToBlogPostAsync(stringTags, blogPost.Id);
 					}
-					
+
 				}
 				catch (DbUpdateConcurrencyException)
 				{
@@ -258,7 +255,7 @@ namespace CrucibleBlog.Controllers
 
 			if (blogUser != null)
 			{
-				if (!blogUser.BlogLikes.Any(bl => bl.BlogPostId == blogPostId)) 
+				if (!blogUser.BlogLikes.Any(bl => bl.BlogPostId == blogPostId))
 				{
 					blogLike = new BlogLike()
 					{
@@ -277,7 +274,7 @@ namespace CrucibleBlog.Controllers
 				isLiked = result,
 				count = _context.BlogLikes.Where(bl => bl.BlogPostId == blogPostId && bl.IsLiked == true).Count()
 			});
-			
+
 		}
 	}
 }
