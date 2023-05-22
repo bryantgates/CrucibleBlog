@@ -121,9 +121,24 @@ namespace CrucibleBlog.Services
 			throw new NotImplementedException();
 		}
 
-		public Task RemoveAllBlogPostTagsAsync(int? blogPostId)
+		public async Task RemoveAllBlogPostTagsAsync(int? blogPostId)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				BlogPost? blogPost = await _context.BlogPost.Include(b => b.Tags).FirstOrDefaultAsync(b => b.Id == blogPostId);
+
+				if (blogPost == null) return;
+
+				blogPost.Tags.Clear();
+
+				_context.Update(blogPost);
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
 		}
 
 		public IEnumerable<BlogPost> SearchBlogPosts(string? searchString)
@@ -211,6 +226,50 @@ namespace CrucibleBlog.Services
 			List<Tag> tags = await _context.Tags.ToListAsync();
 
 			return tags;
+		}
+
+		public async Task<bool> UserLikedBlogAsync(int blogPostId, string blogUserId)
+		{
+			try
+			{
+				return await _context.BlogLikes.AnyAsync(bl => bl.BlogPostId == blogPostId && bl.IsLiked == true && bl.BlogUserId == blogUserId);
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
+		}
+
+		public async Task<IEnumerable<BlogPost>> GetFavoriteBlogPostsAsync(string? blogUserId)
+		{
+			try
+			{
+				List<BlogPost> blogPosts = new();
+				if (!string.IsNullOrEmpty(blogUserId))
+				{
+					BlogUser? blogUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == blogUserId);
+					if (blogUser != null)
+					{
+						//List<int> blogPostIds = _context.BlogLikes.Where(bl => bl.BlogUserId == blogUserId && bl.IsLiked == true).Select(b => b.BlogPostId).ToList();
+						blogPosts = await _context.BlogPost.Where(b => b.Likes.Any(l => l.BlogUserId == blogUserId && l.IsLiked == true) &&
+																					b.IsPublished == true &&
+																					b.IsDeleted == false)
+															.Include(b => b.Likes)
+															.Include(b => b.Comments)
+															.Include(b => b.Category)
+															.Include(b => b.Tags)
+															.OrderByDescending(b => b.CreatedDate)
+															.ToListAsync();
+					}
+				}
+				return blogPosts;
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
 		}
 	}
 }

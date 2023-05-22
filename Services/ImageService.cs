@@ -1,15 +1,16 @@
 ﻿using System.Linq.Expressions;
 using CrucibleBlog.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
-namespace ContactPro.Services
+namespace CrucibleBlog.Services
 {
     public class ImageService : IImageService
     {
 
-       
-		private readonly string? _defaultUserImage = "";
-		private readonly string? _defaultBlogImage = "/img/DefaultContactImage.png";
-		private readonly string? _defaultCategoryImage = "/img/DefaultContactImage.png";
+
+        private readonly string? _defaultUserImage = "/assets/images/DefaultUser.png";
+        private readonly string? _defaultBlogImage = "/assets/images/DefaultBlog.png";
+		private readonly string? _defaultCategoryImage = "/assets/images/DefaultCategory.png";
 		//Set up default blog and default Category and default 
 
 		public string? ConvertByteArrayToFile(byte[]? fileData, string? extension, int defaultImage)

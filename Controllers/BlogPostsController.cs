@@ -22,13 +22,15 @@ namespace CrucibleBlog.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly IBlogService _blogService;
 		private readonly UserManager<BlogUser> _userManager;
+		private readonly IImageService _imageService;
 
-		public BlogPostsController(ApplicationDbContext context, UserManager<BlogUser> userManager, IBlogService? blogService)
-		{
-			_context = context;
-			_userManager = userManager;
-			_blogService = blogService;
-		}
+        public BlogPostsController(ApplicationDbContext context, UserManager<BlogUser> userManager, IBlogService? blogService, IImageService imageService)
+        {
+            _context = context;
+            _userManager = userManager;
+            _blogService = blogService;
+            _imageService = imageService;
+        }
 
         // GET: BlogPosts
         public async Task<IActionResult> Index(int? pageNum)
@@ -49,11 +51,12 @@ namespace CrucibleBlog.Controllers
 				return NotFound();
 			}
 
-			var blogPost = await _context.BlogPost
+			BlogPost? blogPost = await _context.BlogPost
 										 .Include(b => b.Category)
 										 .Include(b => b.Comments)
 										 .ThenInclude(c => c.Author)
 										 .Include(b => b.Tags)
+										 .Include(b => b.Likes)
 										 .FirstOrDefaultAsync(m => m.Slug == slug);
 
 			if (blogPost == null)
@@ -68,7 +71,8 @@ namespace CrucibleBlog.Controllers
 		public IActionResult Create()
 		{
 			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-			return View();
+			BlogPost blogPost = new BlogPost();
+			return View(blogPost);
 		}
 
 		// POST: BlogPosts/Create
@@ -83,6 +87,8 @@ namespace CrucibleBlog.Controllers
 			if (ModelState.IsValid)
 			{
 				blogPost.CreatedDate = DateTime.UtcNow;
+
+				blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
 
 				_context.Add(blogPost);
 				await _context.SaveChangesAsync();
@@ -99,8 +105,13 @@ namespace CrucibleBlog.Controllers
 				}
 
 			blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
-			
-			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
+
+            if (!string.IsNullOrEmpty(stringTags))
+            {
+                await _blogService.AddTagsToBlogPostAsync(stringTags, blogPost.Id);
+            }
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
 			return View(blogPost);
 		}
 
@@ -133,19 +144,49 @@ namespace CrucibleBlog.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Abstract,Content,CreatedDate,UpdatedDate,Slug,IsPublished,CategoryId,ImageData,ImageType")] BlogPost blogPost)
+		public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Abstract,Content,CreatedDate,IsPublished,CategoryId,ImageFile,ImageData,ImageType")] BlogPost blogPost, string? stringTags)
 		{
 			if (id != blogPost.Id)
 			{
 				return NotFound();
 			}
 
+			ModelState.Remove("Slug");
+
 			if (ModelState.IsValid)
 			{
 				try
 				{
-					_context.Update(blogPost);
-					await _context.SaveChangesAsync();
+                    if (!await _blogService.ValidSlugAsync(blogPost.Title, blogPost.Id))
+                    {
+                        ModelState.AddModelError("Title", "A similar Title/Slug is already in use.");
+
+						ViewData["Tags"] = stringTags != null && stringTags.Trim().EndsWith(",") ? stringTags : stringTags;
+                        ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
+                        return View(blogPost);
+                    }
+
+					blogPost.Slug = StringHelper.BlogPostSlug(blogPost.Title);
+
+					if(blogPost.ImageFile != null)
+					{
+						blogPost.ImageData = await _imageService.ConvertFileToByteArrayAsync(blogPost.ImageFile);
+						blogPost.ImageType = blogPost.ImageFile.ContentType;
+					}
+
+					blogPost.UpdatedDate = DateTime.UtcNow;
+                    blogPost.CreatedDate = DateTime.SpecifyKind(blogPost.CreatedDate, DateTimeKind.Utc);
+
+                    _context.Update(blogPost);
+                    await _context.SaveChangesAsync();
+
+                    await _blogService.RemoveAllBlogPostTagsAsync(blogPost.Id);
+
+					if (!string.IsNullOrEmpty(stringTags)) 
+					{
+						await _blogService.AddTagsToBlogPostAsync(stringTags, blogPost.Id);
+					}
+					
 				}
 				catch (DbUpdateConcurrencyException)
 				{
@@ -158,7 +199,7 @@ namespace CrucibleBlog.Controllers
 						throw;
 					}
 				}
-				return RedirectToAction(nameof(Index));
+				return RedirectToAction(nameof(Details), new { slug = blogPost.Slug });
 			}
 			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", blogPost.CategoryId);
 			return View(blogPost);
@@ -205,6 +246,38 @@ namespace CrucibleBlog.Controllers
 		private bool BlogPostExists(int id)
 		{
 			return (_context.BlogPost?.Any(e => e.Id == id)).GetValueOrDefault();
+		}
+
+		public async Task<IActionResult> LikeBlogPost(int blogPostId, string blogUserId)
+		{
+			//check if user has already liked this blog
+			//1. get the user
+			BlogUser? blogUser = await _context.Users.Include(u => u.BlogLikes).FirstOrDefaultAsync(u => u.Id == blogUserId);
+			bool result = false;
+			BlogLike? blogLike = new();
+
+			if (blogUser != null)
+			{
+				if (!blogUser.BlogLikes.Any(bl => bl.BlogPostId == blogPostId)) 
+				{
+					blogLike = new BlogLike()
+					{
+						BlogPostId = blogPostId,
+						IsLiked = true
+					};
+
+					blogUser.BlogLikes.Add(blogLike);
+				}
+				result = blogLike.IsLiked;
+				await _context.SaveChangesAsync();
+			}
+
+			return Json(new
+			{
+				isLiked = result,
+				count = _context.BlogLikes.Where(bl => bl.BlogPostId == blogPostId && bl.IsLiked == true).Count()
+			});
+			
 		}
 	}
 }

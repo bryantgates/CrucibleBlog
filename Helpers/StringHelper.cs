@@ -20,7 +20,7 @@ namespace CrucibleBlog.Helpers
 			//Replace all spaces with the hyphen.
 			output = Regex.Replace(output, @"\s", "-");
 
-			return "";
+			return output;
 		}
 
 		private static string RemoveAccents(string? title)
@@ -36,9 +36,6 @@ namespace CrucibleBlog.Helpers
 			char[] chars = title.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray();
 			//Convert and return the new title
 			return new string(chars).Normalize(NormalizationForm.FormC);
-
-
-			return "";
 		}
 	}
 }

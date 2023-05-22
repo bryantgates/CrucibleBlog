@@ -5,7 +5,7 @@ using CrucibleBlog.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using ContactPro.Services;
+using CrucibleBlog.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

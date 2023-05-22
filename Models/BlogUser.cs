@@ -26,5 +26,6 @@ namespace CrucibleBlog.Models
 
 		public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 
+		public virtual ICollection<BlogLike> BlogLikes { get; set; } = new HashSet<BlogLike>();
 	}
 }

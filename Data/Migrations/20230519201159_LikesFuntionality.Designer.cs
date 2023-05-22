@@ -3,6 +3,7 @@ using System;
 using CrucibleBlog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CrucibleBlog.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230519201159_LikesFuntionality")]
+    partial class LikesFuntionality
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,33 +24,6 @@ namespace CrucibleBlog.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CrucibleBlog.Models.BlogLike", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BlogPostId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("BlogUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsLiked")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogPostId");
-
-                    b.HasIndex("BlogUserId");
-
-                    b.ToTable("BlogLikes");
-                });
 
             modelBuilder.Entity("CrucibleBlog.Models.BlogPost", b =>
                 {
@@ -80,8 +56,14 @@ namespace CrucibleBlog.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsLiked")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("Likes")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -409,25 +391,6 @@ namespace CrucibleBlog.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CrucibleBlog.Models.BlogLike", b =>
-                {
-                    b.HasOne("CrucibleBlog.Models.BlogPost", "BlogPost")
-                        .WithMany("Likes")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CrucibleBlog.Models.BlogUser", "BlogUser")
-                        .WithMany("BlogLikes")
-                        .HasForeignKey("BlogUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BlogPost");
-
-                    b.Navigation("BlogUser");
-                });
-
             modelBuilder.Entity("CrucibleBlog.Models.BlogPost", b =>
                 {
                     b.HasOne("CrucibleBlog.Models.Category", "Category")
@@ -526,15 +489,11 @@ namespace CrucibleBlog.Data.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Likes");
-
                     b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("CrucibleBlog.Models.BlogUser", b =>
                 {
-                    b.Navigation("BlogLikes");
-
                     b.Navigation("Comments");
                 });
 
