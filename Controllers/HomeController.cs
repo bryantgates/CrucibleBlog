@@ -30,7 +30,7 @@ namespace CrucibleBlog.Controllers
 			return View(blogPosts);
 		}
 
-		public async Task<IActionResult> SearchIndexAsync(int? pageNum, string? searchString)
+		public async Task<IActionResult> SearchIndex(int? pageNum, string? searchString)
 		{
 			int pageSize = 4;
 			int page = pageNum ?? 1;
@@ -38,7 +38,7 @@ namespace CrucibleBlog.Controllers
 			IPagedList<BlogPost> blogPosts = await _blogService.SearchBlogPosts(searchString).ToPagedListAsync(page, pageSize);
 			ViewData["ActionName"] = "SearchIndex";
 
-			return View(blogPosts);
+			return View("Index", blogPosts);
 		}
 		public IActionResult Privacy()
 		{

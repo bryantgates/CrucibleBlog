@@ -4,24 +4,16 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@Model.Name</h1>
 
 <div>
-    <h4>Category</h4>
-    <hr />
-    @foreach (BlogPost blogPost in Model.BlogPosts)
-    {
-        <partial name="_BlogCard" model="@blogPost" />
-    }
-</div>
-
-<!-- Display filtered BlogPosts -->
-<div>
-    <h4>BlogPosts</h4>
     <ul>
-        @foreach (var post in Model.BlogPosts)
+        @foreach (BlogPost blogPost in Model.BlogPosts)
         {
-            <li>@post.Title</li>
+            if (blogPost.CategoryId == Model.Id)
+            {
+                <partial name="_BlogCard" model="@blogPost" />
+            }
         }
     </ul>
 </div>

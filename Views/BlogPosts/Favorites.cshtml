@@ -12,20 +12,10 @@
 	ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Favorites</h1>
 
-<p>
-	<a asp-action="Create">Create New</a>
-</p>
-<div class="axil-post-list-area axil-section-gap bg-color-white">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="page-title">
-					<h2 class="title mb--40">Articles By This Author</h2>
-				</div>
-			</div>
-			<div class="col-lg-8 col-xl-8">
+
+			<div>
 				@foreach (BlogPost blogPost in Model)
 				{
 					<partial name="_BlogCard" model="@blogPost" />
@@ -45,6 +35,3 @@
 				</div>
 
 			</div>
-		</div>
-	</div>
-</div>

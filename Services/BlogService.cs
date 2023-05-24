@@ -35,7 +35,7 @@ namespace CrucibleBlog.Services
 				{
 					if (string.IsNullOrWhiteSpace(tagName)) continue;
 
-					Tag? tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name!.Trim() == tagName.Trim().ToLower());
+					Tag? tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name!.Trim().ToLower() == tagName.Trim().ToLower());
 				
 					if (tag == null)
 					{
@@ -97,7 +97,7 @@ namespace CrucibleBlog.Services
 																.Include(b => b.Tags)
 																.ToListAsync();
 
-				return blogPosts.OrderByDescending(b=>b.Comments.Count).Take(count!.Value);
+				return blogPosts.OrderByDescending(b=>b.Comments.Count).Take(count ?? blogPosts.Count());
 			}
 			catch (Exception)
 			{
@@ -216,11 +216,6 @@ namespace CrucibleBlog.Services
 			throw new NotImplementedException();
 		}
 
-		IEnumerable<BlogPost> IBlogService.SearchBlogPosts(string? searchString)
-		{
-			throw new NotImplementedException();
-		}
-
 		public async Task<List<Tag>> GetTagsAsync()
 		{
 			List<Tag> tags = await _context.Tags.ToListAsync();
@@ -232,7 +227,8 @@ namespace CrucibleBlog.Services
 		{
 			try
 			{
-				return await _context.BlogLikes.AnyAsync(bl => bl.BlogPostId == blogPostId && bl.IsLiked == true && bl.BlogUserId == blogUserId);
+				return await _context.BlogLikes
+								     .AnyAsync(bl => bl.BlogPostId == blogPostId && bl.IsLiked == true && bl.BlogUserId == blogUserId);
 			}
 			catch (Exception)
 			{

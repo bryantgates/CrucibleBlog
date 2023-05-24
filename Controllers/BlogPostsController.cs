@@ -13,6 +13,7 @@ using CrucibleBlog.Services.Interfaces;
 using CrucibleBlog.Services;
 using CrucibleBlog.Helpers;
 using X.PagedList;
+using MailKit.Search;
 
 namespace CrucibleBlog.Controllers
 {
@@ -32,18 +33,27 @@ namespace CrucibleBlog.Controllers
 			_imageService = imageService;
 		}
 
-		// GET: BlogPosts
-		public async Task<IActionResult> Index(int? pageNum)
-		{
-			int pageSize = 4;
-			int page = pageNum ?? 1;
+        // GET: BlogPosts
+        public async Task<IActionResult> Index(int? pageNum, string searchTerm)
+        {
+            int pageSize = 4;
+            int page = pageNum ?? 1;
 
-			IPagedList<BlogPost> blogPosts = (await _context.BlogPost.Include(blogPosts => blogPosts.Category).ToPagedListAsync(pageNum, pageSize));
-			return View(blogPosts);
-		}
+            IQueryable<BlogPost> query = _context.BlogPost.Include(blogPost => blogPost.Category);
 
-		// GET: BlogPosts/Details/5
-		[AllowAnonymous]
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(blogPost =>
+                    blogPost.Title.Contains(searchTerm) || blogPost.Content.Contains(searchTerm));
+            }
+
+            IPagedList<BlogPost> blogPosts = await query.ToPagedListAsync(page, pageSize);
+
+            return View(blogPosts);
+        }
+
+        // GET: BlogPosts/Details/5
+        [AllowAnonymous]
 		public async Task<IActionResult> Details(string? slug)
 		{
 			if (string.IsNullOrEmpty(slug))

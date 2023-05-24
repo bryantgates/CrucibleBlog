@@ -35,8 +35,8 @@ namespace CrucibleBlog.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Category category = _context.Categories.Include(c => c.BlogPosts).FirstOrDefault(c => c.Id == id);
+
             if (category == null)
             {
                 return NotFound();

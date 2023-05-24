@@ -24,7 +24,7 @@ namespace CrucibleBlog.Services.Interfaces
 		public IEnumerable<BlogPost> SearchBlogPosts(string? searchString);
 		public Task<bool> ValidSlugAsync(string? title, int? blogPostId);
 		public Task<List<Tag>> GetTagsAsync();
-        Task<bool> UserLikedBlogAsync(int blogPostId, string blogUserId);
+        public Task<bool> UserLikedBlogAsync(int blogPostId, string blogUserId);
 		Task<IEnumerable<BlogPost>> GetFavoriteBlogPostsAsync(string? blogUserId);
 	}
 }
